@@ -178,5 +178,7 @@ MP4::File::save()
 bool
 MP4::File::hasMP4Tag() const
 {
-  return (d->atoms->find("moov", "udta", "meta", "ilst") != 0);
+  if (d->atoms != nullptr)
+    return (d->atoms->find("moov", "udta", "meta", "ilst") != 0);
+  return false;
 }
