@@ -387,10 +387,6 @@ namespace TagLib {
      */
     bool isAscii() const;
 
-    void setLocalCodePage(bool local) const;
-
-    bool isLocalCodePage() const;
-
     /*!
      * Converts the base-10 integer \a n to a string.
      */
