@@ -153,6 +153,8 @@ public:
    * This is only used to hold the the most recent value of toCString().
    */
   std::string cstring;
+
+  bool local{};
 };
 
 String String::null;
@@ -542,6 +544,16 @@ bool String::isAscii() const
       return false;
   }
   return true;
+}
+
+void String::setLocalCodePage(bool local) const
+{
+  d->local = local;
+}
+
+bool String::isLocalCodePage() const
+{
+  return d->local;
 }
 
 String String::number(int n) // static

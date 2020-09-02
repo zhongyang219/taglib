@@ -69,7 +69,9 @@ StringHandler::StringHandler()
 
 String ID3v1::StringHandler::parse(const ByteVector &data) const
 {
-  return String(data, String::Latin1).stripWhiteSpace();
+  String str = String(data, String::Latin1).stripWhiteSpace();
+  str.setLocalCodePage(true);
+  return str;
 }
 
 ByteVector ID3v1::StringHandler::render(const String &s) const
