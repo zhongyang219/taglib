@@ -53,7 +53,8 @@ namespace
   void copyFromLatin1(std::wstring &data, const char *s, size_t length)
   {
 #if (defined(_WIN32) || defined(_WIN64))
-    int size = MultiByteToWideChar(CP_ACP, 0, s, -1, NULL, 0);
+    std::string str(s, length);
+    int size = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
     if (size <= 0)
     {
       data.clear();
@@ -61,7 +62,7 @@ namespace
     else
     {
       wchar_t* str_unicode = new wchar_t[size + 1];
-      MultiByteToWideChar(CP_ACP, 0, s, -1, str_unicode, size);
+      MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, str_unicode, size);
       data.assign(str_unicode);
       delete[] str_unicode;
     }
@@ -296,21 +297,8 @@ String::~String()
 
 std::string String::to8Bit(bool unicode) const
 {
-#if (defined(_WIN32) || defined(_WIN64))
-  int size = WideCharToMultiByte(CP_ACP, 0, d->data.c_str(), -1, NULL, 0, NULL, NULL);
-  if (size <= 0)
-    return std::string();
-  char* str = new char[size + 1];
-  BOOL UsedDefaultChar{ FALSE };
-  WideCharToMultiByte(CP_ACP, 0, d->data.c_str(), -1, str, size, NULL, &UsedDefaultChar);
-  std::string result;
-  result.assign(str);
-  delete[] str;
-  return result;
-#else
   const ByteVector v = data(unicode ? UTF8 : Latin1);
   return std::string(v.data(), v.size());
-#endif
 }
 
 TagLib::wstring String::toWString() const
