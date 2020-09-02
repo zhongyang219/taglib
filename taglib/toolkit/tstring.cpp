@@ -52,7 +52,7 @@ namespace
   {
     for (int i = 0; i < length; ++i)
     {
-      if (s[i] > 128)
+      if (s[i] < 0 || s[i] >= 128)
         return false;
     }
     return true;
