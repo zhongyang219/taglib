@@ -153,6 +153,7 @@ public:
    * This is only used to hold the the most recent value of toCString().
    */
   std::string cstring;
+  bool is_latin1{};
 };
 
 String String::null;
@@ -176,7 +177,10 @@ String::String(const std::string &s, Type t) :
   d(new StringPrivate())
 {
   if(t == Latin1)
+  {
     copyFromLatin1(d->data, s.c_str(), s.length());
+    d->is_latin1 = true;
+  }
   else if(t == String::UTF8)
     copyFromUTF8(d->data, s.c_str(), s.length());
   else {
@@ -224,7 +228,10 @@ String::String(const char *s, Type t) :
   d(new StringPrivate())
 {
   if(t == Latin1)
+  {
     copyFromLatin1(d->data, s, ::strlen(s));
+    d->is_latin1 = true;
+  }
   else if(t == String::UTF8)
     copyFromUTF8(d->data, s, ::strlen(s));
   else {
@@ -246,7 +253,10 @@ String::String(char c, Type t) :
   d(new StringPrivate())
 {
   if(t == Latin1)
+  {
     copyFromLatin1(d->data, &c, 1);
+    d->is_latin1 = true;
+  }
   else if(t == String::UTF8)
     copyFromUTF8(d->data, &c, 1);
   else {
@@ -261,7 +271,10 @@ String::String(const ByteVector &v, Type t) :
     return;
 
   if(t == Latin1)
+  {
     copyFromLatin1(d->data, v.data(), v.size());
+    d->is_latin1 = true;
+  }
   else if(t == UTF8)
     copyFromUTF8(d->data, v.data(), v.size());
   else
@@ -528,11 +541,12 @@ String String::stripWhiteSpace() const
 
 bool String::isLatin1() const
 {
-  for(ConstIterator it = begin(); it != end(); ++it) {
-    if(*it >= 256)
-      return false;
-  }
-  return true;
+  //for(ConstIterator it = begin(); it != end(); ++it) {
+  //  if(*it >= 256)
+  //    return false;
+  //}
+  //return true;
+  return d->is_latin1;
 }
 
 bool String::isAscii() const
@@ -600,6 +614,8 @@ String &String::operator+=(const String &s)
 {
   detach();
 
+  if (isEmpty() && s.isLatin1())
+    d->is_latin1 = true;
   d->data += s.d->data;
   return *this;
 }
@@ -616,6 +632,8 @@ String &String::operator+=(const char *s)
 {
   detach();
 
+  if (isEmpty())
+    d->is_latin1 = true;
   for(int i = 0; s[i] != 0; i++)
     d->data += static_cast<unsigned char>(s[i]);
   return *this;
@@ -633,6 +651,8 @@ String &String::operator+=(char c)
 {
   detach();
 
+  if (isEmpty())
+    d->is_latin1 = true;
   d->data += static_cast<unsigned char>(c);
   return *this;
 }
