@@ -376,7 +376,11 @@ String String::substr(unsigned int position, unsigned int n) const
   if(position == 0 && n >= size())
     return *this;
   else
-    return String(d->data.substr(position, n));
+  {
+    String str(d->data.substr(position, n));
+    str.d->is_latin1 = isLatin1();
+    return str;
+  }
 }
 
 String &String::append(const String &s)
