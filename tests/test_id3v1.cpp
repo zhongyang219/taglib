@@ -40,6 +40,7 @@ class TestID3v1 : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE(TestID3v1);
   CPPUNIT_TEST(testStripWhiteSpace);
   CPPUNIT_TEST(testGenres);
+  CPPUNIT_TEST(testRenamedGenres);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -66,6 +67,20 @@ public:
   {
     CPPUNIT_ASSERT_EQUAL(String("Darkwave"), ID3v1::genre(50));
     CPPUNIT_ASSERT_EQUAL(100, ID3v1::genreIndex("Humour"));
+    CPPUNIT_ASSERT(ID3v1::genreList().contains("Heavy Metal"));
+    CPPUNIT_ASSERT_EQUAL(79, ID3v1::genreMap()["Hard Rock"]);
+  }
+
+  void testRenamedGenres()
+  {
+    CPPUNIT_ASSERT_EQUAL(String("Bebop"), ID3v1::genre(85));
+    CPPUNIT_ASSERT_EQUAL(85, ID3v1::genreIndex("Bebop"));
+    CPPUNIT_ASSERT_EQUAL(85, ID3v1::genreIndex("Bebob"));
+
+    ID3v1::Tag tag;
+    tag.setGenre("Hardcore");
+    CPPUNIT_ASSERT_EQUAL(String("Hardcore Techno"), tag.genre());
+    CPPUNIT_ASSERT_EQUAL(129U, tag.genreNumber());
   }
 
 };

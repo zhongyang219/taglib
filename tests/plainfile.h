@@ -1,6 +1,6 @@
 /***************************************************************************
-    copyright            : (C) 2016 by Tsuda Kageyu
-    email                : tsuda.kageyu@gmail.com
+    copyright           : (C) 2015 by Tsuda Kageyu
+    email               : tsuda.kageyu@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,84 +23,28 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#ifndef TAGLIB_PLAINFILE_H
+#define TAGLIB_PLAINFILE_H
 
-#ifdef HAVE_ZLIB
-# include <zlib.h>
-# include <tstring.h>
-# include <tdebug.h>
-#endif
-
-#include "tzlib.h"
+#include <tfile.h>
 
 using namespace TagLib;
 
-bool zlib::isAvailable()
-{
-#ifdef HAVE_ZLIB
+//! File subclass that gives tests access to filesystem operations
+class PlainFile : public File {
+public:
+  explicit PlainFile(FileName name) : File(name) { }
+  Tag *tag() const { return NULL; }
+  AudioProperties *audioProperties() const { return NULL; }
+  bool save() { return false; }
+  void truncate(long length) { File::truncate(length); }
 
-  return true;
-
-#else
-
-  return false;
-
-#endif
-}
-
-ByteVector zlib::decompress(const ByteVector &data)
-{
-#ifdef HAVE_ZLIB
-
-  z_stream stream = {};
-
-  if(inflateInit(&stream) != Z_OK) {
-    debug("zlib::decompress() - Failed to initialize zlib.");
-    return ByteVector();
+  ByteVector readAll() {
+    seek(0, End);
+    long end = tell();
+    seek(0);
+    return readBlock(end);
   }
-
-  ByteVector inData = data;
-
-  stream.avail_in = static_cast<uInt>(inData.size());
-  stream.next_in  = reinterpret_cast<Bytef *>(inData.data());
-
-  const unsigned int chunkSize = 1024;
-
-  ByteVector outData;
-
-  do {
-    const size_t offset = outData.size();
-    outData.resize(outData.size() + chunkSize);
-
-    stream.avail_out = static_cast<uInt>(chunkSize);
-    stream.next_out  = reinterpret_cast<Bytef *>(outData.data() + offset);
-
-    const int result = inflate(&stream, Z_NO_FLUSH);
-
-    if(result == Z_STREAM_ERROR ||
-       result == Z_NEED_DICT ||
-       result == Z_DATA_ERROR ||
-       result == Z_MEM_ERROR)
-    {
-      if(result != Z_STREAM_ERROR)
-        inflateEnd(&stream);
-
-      debug("zlib::decompress() - Error reading compressed stream.");
-      return ByteVector();
-    }
-
-    outData.resize(outData.size() - stream.avail_out);
-  } while(stream.avail_out == 0);
-
-  inflateEnd(&stream);
-
-  return outData;
-
-#else
-
-  return ByteVector();
+};
 
 #endif
-}

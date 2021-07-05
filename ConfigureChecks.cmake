@@ -37,17 +37,6 @@ endif()
 # Determine which kind of atomic operations your compiler supports.
 
 check_cxx_source_compiles("
-  #include <atomic>
-  int main() {
-    std::atomic_int x(1);
-    ++x;
-    --x;
-    return 0;
-  }
-" HAVE_STD_ATOMIC)
-
-if(NOT HAVE_STD_ATOMIC)
-  check_cxx_source_compiles("
     int main() {
       volatile int x;
       __sync_add_and_fetch(&x, 1);
@@ -56,8 +45,8 @@ if(NOT HAVE_STD_ATOMIC)
     }
   " HAVE_GCC_ATOMIC)
 
-  if(NOT HAVE_GCC_ATOMIC)
-    check_cxx_source_compiles("
+if(NOT HAVE_GCC_ATOMIC)
+  check_cxx_source_compiles("
       #include <libkern/OSAtomic.h>
       int main() {
         volatile int32_t x;
@@ -67,8 +56,8 @@ if(NOT HAVE_STD_ATOMIC)
       }
     " HAVE_MAC_ATOMIC)
 
-    if(NOT HAVE_MAC_ATOMIC)
-      check_cxx_source_compiles("
+  if(NOT HAVE_MAC_ATOMIC)
+    check_cxx_source_compiles("
         #include <windows.h>
         int main() {
           volatile LONG x;
@@ -78,8 +67,8 @@ if(NOT HAVE_STD_ATOMIC)
         }
       " HAVE_WIN_ATOMIC)
 
-      if(NOT HAVE_WIN_ATOMIC)
-        check_cxx_source_compiles("
+    if(NOT HAVE_WIN_ATOMIC)
+      check_cxx_source_compiles("
           #include <ia64intrin.h>
           int main() {
             volatile int x;
@@ -88,7 +77,6 @@ if(NOT HAVE_STD_ATOMIC)
             return 0;
           }
         " HAVE_IA64_ATOMIC)
-      endif()
     endif()
   endif()
 endif()
@@ -187,27 +175,6 @@ check_cxx_source_compiles("
     return 0;
   }
 " HAVE_ISO_STRDUP)
-
-# Determine whether zlib is installed.
-
-if(NOT ZLIB_SOURCE)
-  find_package(ZLIB)
-  if(ZLIB_FOUND)
-    set(HAVE_ZLIB 1)
-  else()
-    set(HAVE_ZLIB 0)
-  endif()
-endif()
-
-# Determine whether CppUnit is installed.
-
-if(BUILD_TESTS AND NOT BUILD_SHARED_LIBS)
-  find_package(CppUnit)
-  if(NOT CppUnit_FOUND)
-    message(STATUS "CppUnit not found, disabling tests.")
-    set(BUILD_TESTS OFF)
-  endif()
-endif()
 
 # Detect WinRT mode
 if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")

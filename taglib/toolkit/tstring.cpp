@@ -44,7 +44,6 @@ namespace
   {
     if(Utils::systemByteOrder() == Utils::LittleEndian)
       return String::UTF16LE;
-    else
       return String::UTF16BE;
   }
 
@@ -134,15 +133,15 @@ namespace
         data[i] = c;
     }
   }
-}
+}  // namespace
 
 namespace TagLib {
 
 class String::StringPrivate : public RefCounter
 {
 public:
-  StringPrivate() :
-    RefCounter() {}
+  StringPrivate()
+    {}
 
   /*!
    * Stores string in UTF-16. The byte order depends on the CPU endian.
@@ -355,11 +354,9 @@ StringList String::split(const String &separator) const
       list.append(substr(index, size() - index));
       break;
     }
-    else {
       list.append(substr(index, sep - index));
       index = sep + separator.size();
     }
-  }
   return list;
 }
 
@@ -375,7 +372,6 @@ String String::substr(unsigned int position, unsigned int n) const
 {
   if(position == 0 && n >= size())
     return *this;
-  else
   {
     String str(d->data.substr(position, n));
     str.d->is_latin1 = isLatin1();
@@ -736,7 +732,7 @@ void String::detach()
 ////////////////////////////////////////////////////////////////////////////////
 
 const String::Type String::WCharByteOrder = wcharByteOrder();
-}
+}  // namespace TagLib
 
 ////////////////////////////////////////////////////////////////////////////////
 // related non-member functions
